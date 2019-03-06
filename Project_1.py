@@ -12,11 +12,13 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
+conn = sqlite3.connect('tags.db')
+
 
 @app.route('/', methods=['GET'])
 def home():
-    return '''<h1>Tags microservice</h1>
-<p>Each article can be have one or more tags associated with it. Since this API is exposed separately from the Articles API, individual articles are referred to by URL.</p>'''
+    return '''<h1>Project 1</h1>
+<p>In this project, you will work in a team to build a set of microservices for a blog platform.</p>'''
 
 
 @app.errorhandler(404)
@@ -45,7 +47,6 @@ def add_tags_new():
 
     query = query[:-4] + ';'
 
-    conn = sqlite3.connect('tags.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
 
