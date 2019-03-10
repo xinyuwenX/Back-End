@@ -1,3 +1,5 @@
+/* SQLite schema for creating 4 tables */
+
 create table articles (
  url text primary key,
  text text,
