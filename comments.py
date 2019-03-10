@@ -43,6 +43,7 @@ def retrieve_comments():
     if not (url or limit):
         return page_not_found(404)
 
+    query += ' ORDER by date'
 
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = dict_factory
