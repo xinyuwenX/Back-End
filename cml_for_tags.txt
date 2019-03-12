@@ -1,5 +1,5 @@
 1. Retrieve tags with given url
-curl http://127.0.0.1:5000/tags/retrieve_tags?url=url_1;
+curl http://127.0.0.1:5000/tags/retrieve_tags?url=url_3
 
 2. Add tags to a url
 curl -H "Content-type: text/plain" -X POST http://127.0.0.1:5000/tags/add_tags -d "2, 'tag_2', 'url_2'"

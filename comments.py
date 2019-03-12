@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, json
+from flask import Flask, request, jsonify
 import sqlite3
 
 app = Flask(__name__)
@@ -38,12 +38,10 @@ def retrieve_comments():
         query += ' url=?'
         to_filter.append(url)
     if limit:
-        query += ' LIMIT ?'
+        query += ' order by date desc limit ?'
         to_filter.append(limit)
     if not (url or limit):
         return page_not_found(404)
-
-    query += ' ORDER by date'
 
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = dict_factory
