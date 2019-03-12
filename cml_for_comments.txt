@@ -1,1 +1,1 @@
-curl -H "Content-type: text/plain" -X POST http://127.0.0.1:5000/comments/add_comments -d "35, 'comment_32', 'url_1','author_2'"
+curl -H "Content-type: application/json" -X POST http://127.0.0.1:5000/comments/add_comments -d "35, 'comment_32', 'url_1','author_2'"
