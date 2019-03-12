@@ -6,6 +6,7 @@ As with the tags microservice, individual articles are referred to by URL.
 Each comment has an author and a date.
 
 Author: Xinyu Wen
+Email: xinyuwen@csu.fullerton.edu
 ========================================================================================================================
 '''
 from flask import Flask, request, jsonify, json

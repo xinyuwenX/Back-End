@@ -1,5 +1,7 @@
+/* Project 1: Microservices*/
 /* SQLite schema for creating 4 tables */
 /* Author: Xinyu Wen*/
+/* Email: xinyuwen@csu.fullerton.edu */
 
 PRAGMA foreign_keys = ON;
 

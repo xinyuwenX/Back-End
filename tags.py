@@ -5,6 +5,7 @@ Each article can be have one or more tags associated with it.
 Since this API is exposed separately from the Articles API, individual articles are referred to by URL.
 
 Author: Xinyu Wen
+Email: xinyuwen@csu.fullerton.edu
 ========================================================================================================================
 '''
 from flask import Flask, request, jsonify, json
