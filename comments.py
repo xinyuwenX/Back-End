@@ -24,6 +24,7 @@ def comments():
 
 
 # Retrieve the n most recent comments on a URL
+# Request url and number
 @app.route('/comments/retrieve_comments', methods=['GET'])
 def retrieve_comments():
     query_parameters = request.args
@@ -53,6 +54,7 @@ def retrieve_comments():
 
 
 # Retrieve the number of comments on a given article
+# Request url
 @app.route('/comments/retrieve_number', methods=['GET'])
 def retrieve_number():
     query_parameters = request.args
@@ -80,6 +82,7 @@ def retrieve_number():
 
 
 # Delete an individual comment
+# Request url
 @app.route('/comments/remove_comments', methods=['DELETE'])
 def remove_comments():
     query = "DELETE FROM comments WHERE "

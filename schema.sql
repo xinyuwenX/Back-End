@@ -2,6 +2,11 @@
 
 PRAGMA foreign_keys = ON;
 
+drop table if exists articles;
+drop table if exists tags;
+drop table if exists comments;
+drop table if exists users;
+
 create table articles (
  id integer primary key autoincrement,
  url text,
