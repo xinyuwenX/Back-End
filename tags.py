@@ -1,3 +1,12 @@
+'''
+========================================================================================================================
+Tags microservice
+Each article can be have one or more tags associated with it.
+Since this API is exposed separately from the Articles API, individual articles are referred to by URL.
+
+Author: Xinyu Wen
+========================================================================================================================
+'''
 from flask import Flask, request, jsonify, json
 import sqlite3
 

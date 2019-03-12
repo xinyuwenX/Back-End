@@ -1,3 +1,13 @@
+'''
+========================================================================================================================
+Comments microservice
+Users can post comments on each article.
+As with the tags microservice, individual articles are referred to by URL.
+Each comment has an author and a date.
+
+Author: Xinyu Wen
+========================================================================================================================
+'''
 from flask import Flask, request, jsonify, json
 import sqlite3
 
@@ -6,6 +16,7 @@ app.config["DEBUG"] = True
 
 DATABASE = 'blog.db'
 
+# Let the database return items from the database as dictionaries
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
