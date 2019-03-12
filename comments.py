@@ -107,7 +107,7 @@ def add_comments():
     if request.headers['Content-Type'] == 'text/plain':
         query += '('
         query += request.data.decode()
-        query += ');'
+        query += ",datetime('now'));"
     else:
         return "415 Unsupported Media Type ;)"
 
