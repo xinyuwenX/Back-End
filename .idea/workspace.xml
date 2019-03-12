@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="994cb739-a851-4b81-ae05-e918bba3e4b7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/comments.py" beforeDir="false" afterPath="$PROJECT_DIR$/comments.py" afterDir="false" />
-    </list>
+    <list default="true" id="994cb739-a851-4b81-ae05-e918bba3e4b7" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,8 +45,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/comments.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="388">
-              <caret line="116" column="13" selection-start-line="116" selection-start-column="13" selection-end-line="116" selection-end-column="13" />
+            <state relative-caret-position="441">
+              <caret line="128" column="36" lean-forward="true" selection-start-line="128" selection-start-column="36" selection-end-line="128" selection-end-column="36" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
               </folding>
@@ -248,18 +246,18 @@
       <workItem from="1552371413942" duration="658000" />
       <workItem from="1552372481284" duration="753000" />
       <workItem from="1552407715536" duration="1821000" />
-      <workItem from="1552411145818" duration="691000" />
+      <workItem from="1552411145818" duration="952000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="41058000" />
+    <option name="totallyTimeSpent" value="41319000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.3319027" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.3319027" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -313,13 +311,6 @@
     <entry file="file://$PROJECT_DIR$/cml_for_comments.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/schema.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="490">
-          <caret line="35" column="2" lean-forward="true" selection-start-line="35" selection-start-column="2" selection-end-line="35" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/tags.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="364">
@@ -331,10 +322,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/schema.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="490">
+          <caret line="35" column="2" lean-forward="true" selection-start-line="35" selection-start-column="2" selection-end-line="35" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/comments.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="388">
-          <caret line="116" column="13" selection-start-line="116" selection-start-column="13" selection-end-line="116" selection-end-column="13" />
+        <state relative-caret-position="441">
+          <caret line="128" column="36" lean-forward="true" selection-start-line="128" selection-start-column="36" selection-end-line="128" selection-end-column="36" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
           </folding>
