@@ -1,4 +1,5 @@
 /* SQLite schema for creating 4 tables */
+/* Author: Xinyu Wen*/
 
 PRAGMA foreign_keys = ON;
 
