@@ -10,8 +10,8 @@ drop table if exists users;
 
 create table articles (
  id integer primary key autoincrement,
- url text not null,
- conntent text not null,
+ url text unique not null,
+ content text not null,
  title text not null,
  author text not null,
  timestamp_create text not null,
@@ -37,6 +37,6 @@ create table comments (
 create table users (
  id integer primary key autoincrement,
  name text not null,
- email text not null,
+ email text unique not null,
  password text not null
 );
