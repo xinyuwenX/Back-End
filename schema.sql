@@ -9,33 +9,33 @@ drop table if exists users;
 
 create table articles (
  id integer primary key autoincrement,
- url text,
- text text,
- title text,
- author text,
- timestamp_create text,
- timestamp_modified text
+ url text not null,
+ conntent text not null,
+ title text not null,
+ author text not null,
+ timestamp_create text not null,
+ timestamp_modified text not null
 );
 
 create table tags (
  id integer primary key autoincrement,
- tag text,
- url text,
+ tag text not null,
+ url text not null,
  foreign key (url) references articles (url)
 );
 
 create table comments (
  id integer primary key autoincrement,
- comment text,
- url text,
- author text,
- date text,
+ comment text not null,
+ url text not null,
+ author text not null,
+ date text not null,
  foreign key (url) references articles (url)
 );
 
 create table users (
  id integer primary key autoincrement,
- name text,
- email text,
- password text
+ name text not null,
+ email text not null,
+ password text not null
 );

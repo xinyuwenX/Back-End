@@ -114,6 +114,7 @@ def remove_comments():
     return jsonify(results)
 
 # Post a new comment on an article
+# Request url
 @app.route('/comments/add_comments', methods=['POST'])
 def add_comments():
     query = 'INSERT INTO comments(id, comment, url, author, date) VALUES '
