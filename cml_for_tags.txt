@@ -2,7 +2,7 @@
 curl http://127.0.0.1:5000/tags/retrieve_tags?url=url_3
 
 2. Add tags to a url
-curl -H "Content-type: text/plain" -X POST http://127.0.0.1:5000/tags/add_tags -d "2, 'tag_2', 'url_2'"
+curl -H "Content-type: application/json" -X POST http://127.0.0.1:5000/tags/add_tags -d "2, 'tag_2', 'url_2'"
 
 3. Delete tags with url
-curl -H "Content-type: text/plain" -X DELETE http://127.0.0.1:5000/tags/remove_tags -d "url_2"
+curl -H "Content-type: application/json" -X DELETE http://127.0.0.1:5000/tags/remove_tags -d "url_2"

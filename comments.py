@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
 import sqlite3
 
 app = Flask(__name__)
@@ -87,9 +87,9 @@ def retrieve_number():
 def remove_comments():
     query = "DELETE FROM comments WHERE "
 
-    if request.headers['Content-Type'] == 'text/plain':
+    if request.headers['Content-Type'] == 'application/json':
         query += "'"
-        query += request.data.decode()
+        query += json.request.data.decode()
         query += "';"
     else:
         return "415 Unsupported Media Type ;)"
@@ -105,11 +105,11 @@ def remove_comments():
 # Post a new comment on an article
 @app.route('/comments/add_comments', methods=['POST'])
 def add_comments():
-    query = 'insert into comments(id, comment, url, author, date) values '
+    query = 'INSERT INTO comments(id, comment, url, author, date) VALUES '
 
-    if request.headers['Content-Type'] == 'text/plain':
+    if request.headers['Content-Type'] == 'application/json':
         query += '('
-        query += request.data.decode()
+        query += json.request.data.decode()
         query += ",datetime('now'));"
     else:
         return "415 Unsupported Media Type ;)"

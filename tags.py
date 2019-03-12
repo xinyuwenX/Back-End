@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
 import sqlite3
 
 app = Flask(__name__)
@@ -77,9 +77,9 @@ def retrieve_urls():
 def remove_tags():
     query = "DELETE FROM tags WHERE url = "
 
-    if request.headers['Content-Type'] == 'text/plain':
+    if request.headers['Content-Type'] == 'application/json':
         query += "'"
-        query += request.data.decode()
+        query += json.request.data.decode()
         query += "';"
     else:
         return "415 Unsupported Media Type ;)"
@@ -97,9 +97,9 @@ def remove_tags():
 def add_tags():
     query = 'insert into tags(id, tag, url) values '
 
-    if request.headers['Content-Type'] == 'text/plain':
+    if request.headers['Content-Type'] == 'application/json':
         query += '('
-        query += request.data.decode()
+        query += json.request.data.decode()
         query += ');'
     else:
         return "415 Unsupported Media Type ;)"
