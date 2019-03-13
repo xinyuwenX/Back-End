@@ -11,9 +11,6 @@ logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-# app.config['BASIC_AUTH_USERNAME'] = 'john'
-# app.config['BASIC_AUTH_PASSWORD'] = 'matrix'
-
 
 class customAuth (BasicAuth): 
     def check_credentials(self, username, password):
@@ -31,34 +28,32 @@ def home():
     return '''<h1>Welcome to the BLOG</h1>
 <p>Meeting and exceeding all your blogadocious needs.</p>'''
 
-# Articles microservice
-# Each article consists of text, a title or headline, an author, and timestamps for article’s creation
-# and the last time the article was modified.
 
 
 
-@app.route('/api/v1/users/create', methods=['POST'])
+@app.route('/users/create', methods=['POST'])
 @basic_auth.required
 def createUser():
-    conn = sqlite3.connect('articles.db')
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
     name = app.config['BASIC_AUTH_USERNAME']
+    email = name
 
-    query1 = '''SELECT * FROM users WHERE name = ?;'''
-    to_filter1 = [name]
+    query1 = '''SELECT * FROM users WHERE email = ?;'''
+    to_filter1 = [email]
 
     account_check = cur.execute(query1, to_filter1).fetchone()
 
     accountName = ''
 
     if account_check:
-        accountName = account_check.get("name")
+        accountName = account_check.get("email")
 
     if accountName != app.config['BASIC_AUTH_USERNAME']:
 
-        query2 = '''INSERT INTO users (name, password) values (?,?);'''
-        to_filter2 = [app.config['BASIC_AUTH_USERNAME'], app.config['BASIC_AUTH_PASSWORD']]
+        query2 = '''INSERT INTO users (name, email, password) values (?,?,?);'''
+        to_filter2 = [app.config['BASIC_AUTH_USERNAME'], email, app.config['BASIC_AUTH_PASSWORD']]
         response = cur.execute(query2, to_filter2).fetchone()
         conn.commit() 
         return '201'
@@ -66,17 +61,16 @@ def createUser():
         return '401'
 
 
-
-
-@app.route('/api/v1/users/delete', methods=['POST'])
+@app.route('/users/delete', methods=['POST'])
 @basic_auth.required
 def deleteUser():
-    conn = sqlite3.connect('articles.db')
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
     name = app.config['BASIC_AUTH_USERNAME']
+    email = name
 
-    query1 = '''SELECT * FROM users WHERE name = ?;'''
+    query1 = '''SELECT * FROM users WHERE email = ?;'''
     to_filter1 = [name]
 
     account_check = cur.execute(query1, to_filter1).fetchone()
@@ -98,13 +92,13 @@ def deleteUser():
         return "401"
 
 
-@app.route('/api/v1/users/changepassword', methods=['POST'])
+@app.route('/users/changepassword', methods=['POST'])
 @basic_auth.required
 def changeUserPassword():
     jsonRequests = request.get_json()
     newPassword = jsonRequests.get('password')
 
-    conn = sqlite3.connect('articles.db')
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
     name = app.config['BASIC_AUTH_USERNAME']
@@ -132,7 +126,6 @@ def changeUserPassword():
         return 'password successfully changed'
     else:
         return '401'
-
 
 
 
