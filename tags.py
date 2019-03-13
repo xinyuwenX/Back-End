@@ -95,7 +95,7 @@ def retrieve_urls():
     return jsonify(results)
 
 
-# Remove one or more tags from an individual URL
+# Remove one or more tags from an individual URL with basic auth
 @app.route('/tags/remove_tags', methods=['DELETE'])
 @basic_auth.required
 def remove_tags():
@@ -116,7 +116,7 @@ def remove_tags():
 
     return jsonify(results)
 
-# Add tags to a new or an existing URL
+# Add tags to a new or an existing URL with basic auth
 @app.route('/tags/add_tags', methods=['POST'])
 @basic_auth.required
 def add_tags():

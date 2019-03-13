@@ -106,7 +106,7 @@ def retrieve_number():
     return jsonify(results)
 
 
-# Delete an individual comment
+# Delete an individual comment with basic auth
 # Request url
 @app.route('/comments/remove_comments', methods=['DELETE'])
 @basic_auth.required
@@ -128,8 +128,8 @@ def remove_comments():
 
     return jsonify(results)
 
-# Post a new comment on an article
-# Request url
+# Post a new comment on an article with basic auth
+# Request comment, url, author
 @app.route('/comments/add_comments', methods=['POST'])
 @basic_auth.required
 def add_comments():
@@ -139,6 +139,27 @@ def add_comments():
         query += '('
         query += json.request.data.decode()
         query += ",datetime('now'));"
+    else:
+        return "415 Unsupported Media Type ;)"
+
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    results = cur.execute(query).fetchall()
+    conn.commit()
+
+    return jsonify(results)
+
+# Post a new comment on an article without basic auth
+# Request comment, url
+@app.route('/comments/add_comments_no_auth', methods=['POST'])
+def add_comments():
+    query = 'INSERT INTO comments(id, comment, url, author, date) VALUES '
+
+    if request.headers['Content-Type'] == 'application/json':
+        query += '('
+        query += json.request.data.decode()
+        query += ",'Anonymous Coward',datetime('now'));"
     else:
         return "415 Unsupported Media Type ;)"
 
