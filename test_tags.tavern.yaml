@@ -1,0 +1,82 @@
+test_name: Adding tags to articles
+
+stages:
+  - name: Add a new tag to an article
+    request:
+      url: "http://localhost:5000/tags/add_tags"
+      method: POST
+      headers:
+        content-type: application/json
+      auth:
+        - "user2"
+        - "pass123"
+      json:
+        article_url: "{article_url}"
+        tags:
+          - "tag_1"
+    response:
+      status_code: 201
+
+  - name: List all articles with the added tag
+    request:
+      url: "http://localhost:5000/tags/retrieve_urls"
+      method: GET
+      params:
+        tag: "tag_1"
+    response:
+      status_code: 200
+      body:
+        - "{article_url:s}"
+
+  - name: Add another tag to the new article
+    request:
+      url: "http://localhost:5000/tags/add_tags"
+      method: POST
+      headers:
+        content-type: application/json
+      auth:
+        - "user2"
+        - "pass123"
+      json:
+        article_url: "{article_url:s}"
+        tags:
+          - "tag_2"
+    response:
+      status_code: 201
+
+  - name: Delete one of the tags from the article
+    request:
+      url: "http://localhost:5003/v1/tags/delete"
+      method: DELETE
+      headers:
+        content-type: application/json
+      auth:
+        - "user2"
+        - "pass123"
+      json:
+        article_url: "{article_url:s}"
+        tags:
+          - "tag_1"
+    response:
+      status_code: 200
+
+---
+
+test_name: Add a tag to an article that doesn’t exist
+
+stages:
+  - name: Add a tag to an article that doesn’t exist
+    request:
+      url: "http://localhost:5000/tags/add_tags"
+      method: POST
+      headers:
+        content-type: application/json
+      auth:
+        - "user2"
+        - "pass123"
+      json:
+        article_url: "/articles/88"
+        tags:
+          - "tag_2"
+    response:
+      status_code: 404
