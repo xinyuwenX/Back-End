@@ -1,0 +1,62 @@
+test_name: Test retrieve comments microservice
+
+stages:
+
+  - name: Try to add a comment to an article that doesn’t exist
+    request:
+      url: "http://localhost:5000/comments/add_comments"
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 404
+
+---
+
+test_name: Post an anonymous comment on an article
+
+stages:
+  - name: Post an anonymous comment on an article
+    request:
+      url: "http://localhost:5000/comments/add_comments"
+      method: POST
+      headers:
+        content-type: application/json
+      json:
+        article_url: "/articles/1"
+        text: "I keel you!"
+        isAuth: false
+    response:
+      status_code: 201
+
+---
+
+test_name: Post an authenticated comment on an article
+stages:
+  - name: Post an authenticated comment on an article
+    request:
+      url: "http://localhost:5000/comments/add_comments"
+      method: POST
+      headers:
+        content-type: application/json
+      auth:
+        - username
+        - password
+      json:
+        article_url: "/articles/1"
+        text: "Authenticated comment"
+        isAuth: "True"
+    response:
+      status_code: 201
+
+---
+
+test_name: Check that the comments on the article were returned in order
+stages:
+  - name: Check that the comments on the article were returned in order
+    request:
+      url: "http://localhost:5000/comments/add_comments"
+      method: POST
+    response:
+      status_code: 200
+

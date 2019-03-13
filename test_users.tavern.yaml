@@ -1,0 +1,101 @@
+test_name: Try to change the password for a user that does not exist
+
+stages:
+  - name: Try to change the password for a user that does not exist
+    request:
+      url: "http://localhost:5000/v1/users/username"
+      method: PATCH
+      headers:
+        content-type: application/json
+      auth:
+        - "username"
+        - "oldpassword"
+      json:
+        name: "username"
+        password: "newpassword"
+    response:
+      status_code: 401
+
+---
+
+test_name: Create and modify new user information
+
+stages:
+
+  - name: Create a user
+    request:
+      url: "http://localhost:5000/v1/users/user1"
+      method: POST
+      headers:
+        content-type: application/json
+      json:
+        name: "user1"
+        email_address: "user1@email.com"
+        password: "pass123"
+    response:
+      status_code: 201
+
+  - name: Verify user creation
+    request:
+      url: "http://localhost:5000/v1/users"
+      method: GET
+      params:
+        name: "James"
+    response:
+      status_code: 200
+      body:
+        exists: "true"
+
+  - name: Change the user's password
+    request:
+      url: "http://localhost:5000/v1/users/user/password_reset"
+      method: PATCH
+      auth:
+        - "user1"
+        - "pass123"
+      headers:
+        content-type: application/json
+      json:
+        name: "user1"
+        password: "newpass123"
+    response:
+      status_code: 200
+
+  - name: Delete the user
+    request:
+      url: "http://localhost:5000/v1/users/user1"
+      method: DELETE
+      auth:
+        - "user1"
+        - "newpass123"
+      headers:
+        content-type: application/json
+      json:
+        name: "user1"
+    response:
+      status_code: 200
+
+  - name: Verify that user no longer exists
+    request:
+      url: "http://localhost:5000/v1/users"
+      method: GET
+      params:
+        name: user1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      body:
+        exists: "false"
+
+  - name: Try to change the password for the deleted user
+    request:
+      url: "http://localhost:5000/v1/users/user1/password_reset"
+      method: PATCH
+      headers:
+        content-type: application/json
+      json:
+        name: "user1"
+        password: "password"
+    response:
+      status_code: 401

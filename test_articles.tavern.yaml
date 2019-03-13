@@ -1,0 +1,67 @@
+---
+
+test_name: Try to post an article without authenticating
+
+stages:
+  - name: Try to post an article without authenticating
+    request:
+        url: "http://localhost:5000/v1/articles/create"
+        method: POST
+        headers:
+          content-type: application/json
+        json:
+          title: "INVALID ARTICLE"
+          text: "UNAUTHORIZED POST"
+    response:
+      status_code: 401
+
+---
+
+test_name: Try to post an article using the wrong password
+
+stages:
+  - name: Try to post an article using the wrong password
+    request:
+      url: "http://localhost:5000/v1/articles/create"
+        method: POST
+        headers:
+          content-type: application/json
+    response:
+      status_code: 401
+      error:
+
+---
+
+test_name: Post an article successfully
+
+stages:
+  - name: Post an article successfully
+    request:
+      url: "http://localhost:5000/v1/articles/create"
+        method: POST
+        headers:
+          content-type: application/json
+    response:
+      status_code: 201
+
+  - name: Retrieve the newly posted article
+    request:
+      url: "http://localhost:5000/v1/articles/{article_id}"
+        method: GET
+        headers:
+          content-type: application/json
+    response:
+      status_code: 200
+
+  - name: Check that the newly posted article is the most recent
+    request:
+      url: "http://localhost:5000/v1/articles/recent"
+        method: GET
+        headers:
+          content-type: application/json
+    response:
+      status_code: 200
+
+---
+
+
