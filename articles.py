@@ -6,18 +6,11 @@ from flask import request, Response, jsonify
 from flask_basicauth import BasicAuth
 import sqlite3
 import logging
-import random
 import time
 
-
-
 logging.basicConfig(level=logging.DEBUG)
-random.seed(time.clock())
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
-
-# app.config['BASIC_AUTH_USERNAME'] = 'john'
-# app.config['BASIC_AUTH_PASSWORD'] = 'matrix'
 
 
 class customAuth (BasicAuth): 
@@ -44,7 +37,7 @@ def home():
 
 # Post new article
 # Request arguments = author, title, content
-@app.route('/api/v1/article/create', methods=['POST'])
+@app.route('/articles/create', methods=['POST'])
 @basic_auth.required
 def postArticle():
 
@@ -52,32 +45,34 @@ def postArticle():
     author = app.config['BASIC_AUTH_USERNAME']
     title = jsonRequests.get('title')
     content = jsonRequests.get('content')
-    currentTime = int(time.time())
-    last_modified = str(currentTime)
-    published = str(currentTime)
-    id = str(random.randint(1, 10000000000)) #Generate random id
-    url = str(id)
+    url = jsonRequests.get('url')
+    currentTime = datetime('now')
+
+    timestamp_modified = currentTime
+    timestamp_create = currentTime
     
-    query = '''INSERT INTO articles (id, published, author, title, content, last_modified, url) \
+    # query = '''INSERT INTO articles (id, published, author, title, content, last_modified, url) \
+    #         VALUES (?,?,?,?,?,?,?);'''
+    query = '''INSERT INTO articles (url, content, title, author, timestamp_create, timestamp_modified) \
             VALUES (?,?,?,?,?,?,?);'''
     to_filter = []
 
-    if id:
-        to_filter.append(id)
-    if published:
-        to_filter.append(published)
-    if author:
-        to_filter.append(author)
-    if title:
-        to_filter.append(title)
-    if content:
-        to_filter.append(content)
-    if last_modified:
-        to_filter.append(last_modified)
+
     if url:
         to_filter.append(url)
+    if content:
+        to_filter.append(content)
+    if title:
+        to_filter.append(title)
+    if author:
+        to_filter.append(author)
+    if timestamp_create:
+        to_filter.append(timestamp_create)
+    if timestamp_modified:
+        to_filter.append(timestamp_modified)
 
-    conn = sqlite3.connect('articles.db')
+
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
     results = cur.execute(query, to_filter).fetchall()
@@ -89,16 +84,16 @@ def postArticle():
 
 
 # Retrieve an individual article
-@app.route('/api/v1/article/', methods=['GET'])
+@app.route('/articles/', methods=['GET'])
 def retrieveArticle():
 
     jsonRequests = request.get_json()
     url = jsonRequests.get('url')
     
-    query = "SELECT content FROM articles WHERE id = ?"
+    query = "SELECT content FROM articles WHERE url = ?"
     to_filter = [url]
 
-    conn = sqlite3.connect('articles.db')
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
     results = cur.execute(query, to_filter).fetchall()
@@ -108,7 +103,7 @@ def retrieveArticle():
 
 
 # Edit an individual article. The last-modified timestamp should be updated.
-@app.route('/api/v1/article/edit', methods=['POST'])
+@app.route('/articles/edit', methods=['POST'])
 @basic_auth.required
 def editArticle():
 
@@ -117,7 +112,7 @@ def editArticle():
     content = jsonRequests.get('content')
     id = url
 
-    conn = sqlite3.connect('articles.db')
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
 
@@ -129,7 +124,7 @@ def editArticle():
 
     if article_author == app.config['BASIC_AUTH_USERNAME']:
 
-        query2 = '''UPDATE articles SET content =? WHERE id=?;'''
+        query2 = '''UPDATE articles SET content =? WHERE url=?;'''
         to_filter2 = [content, id]
         all_articles = cur.execute(query2, to_filter2).fetchone()
         conn.commit() 
@@ -138,7 +133,7 @@ def editArticle():
         return "401"
 
 # Delete a specific existing article
-@app.route('/api/v1/article/delete', methods=['DELETE'])
+@app.route('/articles/delete', methods=['DELETE'])
 @basic_auth.required
 def deleteArticle():
 
@@ -146,7 +141,7 @@ def deleteArticle():
     jsonRequests = request.get_json()
     url = jsonRequests.get('url')
 
-    conn = sqlite3.connect('articles.db')
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
 
@@ -164,10 +159,10 @@ def deleteArticle():
 
     if article_author == app.config['BASIC_AUTH_USERNAME']:
         # Assuming author is authorized
-        query2 = '''DELETE FROM articles WHERE id=? AND author=?;'''
+        query2 = '''DELETE FROM articles WHERE url=? AND author=?;'''
         to_filter2 = [url, article_author]
 
-        conn = sqlite3.connect('articles.db')
+        conn = sqlite3.connect('blog.db')
         conn.row_factory = dict_factory
         cur = conn.cursor()
         all_articles = cur.execute(query2, to_filter2).fetchone()
@@ -179,17 +174,17 @@ def deleteArticle():
 
 
 # Retrieve the entire contents (including article text) for the ​ n ​ most recent articles
-@app.route('/api/v1/article/recent', methods=['GET'])
+@app.route('/articles/recent', methods=['GET'])
 def recentArticle():
 
     jsonRequests = request.get_json()
     n = jsonRequests.get('n')
 
-    query = '''SELECT * FROM articles ORDER BY published DESC LIMIT ?'''
+    query = '''SELECT * FROM articles ORDER BY timestamp_create DESC LIMIT ?'''
     to_filter = [n]
 
 
-    conn = sqlite3.connect('articles.db')
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
     all_articles = cur.execute(query, to_filter).fetchall()
@@ -197,16 +192,16 @@ def recentArticle():
     return jsonify(all_articles)
 
 # Retrieve metadata for the ​ n ​ most recent articles, including title, author, date, and URL
-@app.route('/api/v1/article/meta', methods=['GET'])
+@app.route('/articles/meta', methods=['GET'])
 def recentMetaArticle():
 
     jsonRequests = request.get_json()
     n = jsonRequests.get('n')
 
-    query = '''SELECT title, author, published, url FROM articles ORDER BY published DESC LIMIT ?'''
+    query = '''SELECT title, author, timestamp_create, url FROM articles ORDER BY timestamp_create DESC LIMIT ?'''
     to_filter = [n]
 
-    conn = sqlite3.connect('articles.db')
+    conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
     all_articles = cur.execute(query, to_filter).fetchall()
