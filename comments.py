@@ -11,11 +11,24 @@ Email: xinyuwen@csu.fullerton.edu
 '''
 from flask import Flask, request, jsonify, json
 import sqlite3
+from flask_basicauth import BasicAuth
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
 DATABASE = 'blog.db'
+
+# Use HTTP Basic Authentication to authenticate users
+class customAuth (BasicAuth):
+    def check_credentials(self, username, password):
+        #werkzeug.security.generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
+
+        # get password from DB and determine if this person is truly the account owner
+        app.config['BASIC_AUTH_USERNAME'] = username
+        app.config['BASIC_AUTH_PASSWORD'] = password
+        return True
+
+basic_auth = customAuth(app)
 
 # Let the database return items from the database as dictionaries
 def dict_factory(cursor, row):
@@ -96,6 +109,7 @@ def retrieve_number():
 # Delete an individual comment
 # Request url
 @app.route('/comments/remove_comments', methods=['DELETE'])
+@basic_auth.required
 def remove_comments():
     query = "DELETE FROM comments WHERE "
 
@@ -117,6 +131,7 @@ def remove_comments():
 # Post a new comment on an article
 # Request url
 @app.route('/comments/add_comments', methods=['POST'])
+@basic_auth.required
 def add_comments():
     query = 'INSERT INTO comments(id, comment, url, author, date) VALUES '
 

@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="994cb739-a851-4b81-ae05-e918bba3e4b7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/comments.py" beforeDir="false" afterPath="$PROJECT_DIR$/comments.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tags.py" beforeDir="false" afterPath="$PROJECT_DIR$/tags.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -34,10 +35,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tags.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="112">
-              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+            <state relative-caret-position="1386">
+              <caret line="99" column="20" selection-start-line="99" selection-start-column="20" selection-end-line="99" selection-end-column="20" />
               <folding>
-                <marker date="1552434191612" expanded="true" signature="946:1032" ph="..." />
+                <element signature="e#487#534#0" expanded="true" />
+                <marker date="1552435986005" expanded="true" signature="1464:1550" ph="..." />
               </folding>
             </state>
           </provider>
@@ -46,8 +48,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/comments.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1904">
-              <caret line="137" column="22" selection-start-line="137" selection-start-column="22" selection-end-line="137" selection-end-column="22" />
+            <state relative-caret-position="1862">
+              <caret line="133" column="20" selection-start-line="133" selection-start-column="20" selection-end-line="133" selection-end-column="20" />
+              <folding>
+                <element signature="e#480#527#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -246,12 +251,12 @@
       <workItem from="1552407715536" duration="1821000" />
       <workItem from="1552411145818" duration="952000" />
       <workItem from="1552418001990" duration="456000" />
-      <workItem from="1552430070758" duration="689000" />
+      <workItem from="1552430070758" duration="1784000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="42464000" />
+    <option name="totallyTimeSpent" value="43559000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="0" />
@@ -320,17 +325,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/comments.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1904">
-          <caret line="137" column="22" selection-start-line="137" selection-start-column="22" selection-end-line="137" selection-end-column="22" />
+        <state relative-caret-position="1862">
+          <caret line="133" column="20" selection-start-line="133" selection-start-column="20" selection-end-line="133" selection-end-column="20" />
+          <folding>
+            <element signature="e#480#527#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tags.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+        <state relative-caret-position="1386">
+          <caret line="99" column="20" selection-start-line="99" selection-start-column="20" selection-end-line="99" selection-end-column="20" />
           <folding>
-            <marker date="1552434191612" expanded="true" signature="946:1032" ph="..." />
+            <element signature="e#487#534#0" expanded="true" />
+            <marker date="1552435986005" expanded="true" signature="1464:1550" ph="..." />
           </folding>
         </state>
       </provider>
