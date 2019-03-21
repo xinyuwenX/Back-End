@@ -3,3 +3,4 @@
 venv/
 templates/
 static/
+.DS_Store
