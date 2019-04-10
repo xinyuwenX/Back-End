@@ -3,7 +3,6 @@
 import flask
 
 from flask import request, Response, jsonify
-from flask_basicauth import BasicAuth
 import sqlite3
 import logging
 import time
@@ -12,22 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-
-class customAuth(BasicAuth):
-    def check_credentials(self, username, password):
-        # werkzeug.security.generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-
-        # get password from DB and determine if this person is truly the account owner
-        app.config['BASIC_AUTH_USERNAME'] = username
-        app.config['BASIC_AUTH_PASSWORD'] = password
-        return True
-
-
-basic_auth = customAuth(app)
-
-
 @app.route('/', methods=['GET'])
-@basic_auth.required
 def home():
     return '''<h1>Welcome to the BLOG</h1>
 <p>Meeting and exceeding all your blogadocious needs.</p>'''
@@ -41,7 +25,6 @@ def home():
 # Post new article
 # Request arguments = author, title, content
 @app.route('/articles/create', methods=['POST'])
-@basic_auth.required
 def postArticle():
     jsonRequests = request.get_json()
     author = app.config['BASIC_AUTH_USERNAME']
@@ -102,7 +85,6 @@ def retrieveArticle():
 
 # Edit an individual article. The last-modified timestamp should be updated.
 @app.route('/articles/edit', methods=['POST'])
-@basic_auth.required
 def editArticle():
     jsonRequests = request.get_json()
     url = jsonRequests.get('url')
@@ -132,7 +114,6 @@ def editArticle():
 
 # Delete a specific existing article
 @app.route('/articles/delete', methods=['DELETE'])
-@basic_auth.required
 def deleteArticle():
     jsonRequests = request.get_json()
     url = jsonRequests.get('url')

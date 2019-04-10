@@ -10,7 +10,6 @@ Email: xinyuwen@csu.fullerton.edu
 '''
 from flask import Flask, request, jsonify, json
 import sqlite3
-from flask_basicauth import BasicAuth
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -23,18 +22,6 @@ def dict_factory(cursor, row):
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
-
-# Use HTTP Basic Authentication to authenticate users
-class customAuth (BasicAuth):
-    def check_credentials(self, username, password):
-        #werkzeug.security.generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-
-        # get password from DB and determine if this person is truly the account owner
-        app.config['BASIC_AUTH_USERNAME'] = username
-        app.config['BASIC_AUTH_PASSWORD'] = password
-        return True
-
-basic_auth = customAuth(app)
 
 # Home page
 @app.route('/', methods=['GET'])
@@ -97,7 +84,6 @@ def retrieve_urls():
 
 # Remove one or more tags from an individual URL with basic auth
 @app.route('/tags/remove_tags', methods=['DELETE'])
-@basic_auth.required
 def remove_tags():
     query = "DELETE FROM tags WHERE url = "
 
@@ -118,7 +104,6 @@ def remove_tags():
 
 # Add tags to a new or an existing URL with basic auth
 @app.route('/tags/add_tags', methods=['POST'])
-@basic_auth.required
 def add_tags():
     query = 'insert into tags(id, tag, url) values '
 

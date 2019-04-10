@@ -21,8 +21,6 @@ class customAuth (BasicAuth):
         app.config['BASIC_AUTH_PASSWORD'] = password
         return True
 
-basic_auth = customAuth(app)
-
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>Welcome to the BLOG</h1>
@@ -127,7 +125,11 @@ def changeUserPassword():
     else:
         return '401'
 
-
+# Add a single new endpoint to the users service that requires HTTP Basic Authentication.
+@app.route('/users/auth', methods=['GET'])
+def auth():
+    basic_auth = customAuth(app)
+    return ""
 
 @app.errorhandler(404)
 def page_not_found(e):

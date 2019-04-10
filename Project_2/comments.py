@@ -11,24 +11,11 @@ Email: xinyuwen@csu.fullerton.edu
 '''
 from flask import Flask, request, jsonify, json
 import sqlite3
-from flask_basicauth import BasicAuth
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
 DATABASE = 'comments.db'
-
-# Use HTTP Basic Authentication to authenticate users
-class customAuth (BasicAuth):
-    def check_credentials(self, username, password):
-        #werkzeug.security.generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-
-        # get password from DB and determine if this person is truly the account owner
-        app.config['BASIC_AUTH_USERNAME'] = username
-        app.config['BASIC_AUTH_PASSWORD'] = password
-        return True
-
-basic_auth = customAuth(app)
 
 # Let the database return items from the database as dictionaries
 def dict_factory(cursor, row):
@@ -109,7 +96,6 @@ def retrieve_number():
 # Delete an individual comment with basic auth
 # Request url
 @app.route('/comments/remove_comments', methods=['DELETE'])
-@basic_auth.required
 def remove_comments():
     query = "DELETE FROM comments WHERE "
 
@@ -131,7 +117,6 @@ def remove_comments():
 # Post a new comment on an article with basic auth
 # Request comment, url, author
 @app.route('/comments/add_comments', methods=['POST'])
-@basic_auth.required
 def add_comments():
     query = 'INSERT INTO comments(id, comment, url, author, date) VALUES '
 
@@ -149,27 +134,6 @@ def add_comments():
     conn.commit()
 
     return jsonify(results)
-
-# Post a new comment on an article without basic auth
-# Request comment, url
-# @app.route('/comments/add_comments_no_auth', methods=['POST'])
-# def add_comments():
-#     query = 'INSERT INTO comments(id, comment, url, author, date) VALUES '
-#
-#     if request.headers['Content-Type'] == 'application/json':
-#         query += '('
-#         query += json.request.data.decode()
-#         query += ",'Anonymous Coward',datetime('now'));"
-#     else:
-#         return "415 Unsupported Media Type ;)"
-#
-#     conn = sqlite3.connect(DATABASE)
-#     conn.row_factory = dict_factory
-#     cur = conn.cursor()
-#     results = cur.execute(query).fetchall()
-#     conn.commit()
-#
-#     return jsonify(results)
 
 # Error handler
 @app.errorhandler(404)
