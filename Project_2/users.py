@@ -11,7 +11,6 @@ logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-
 class customAuth (BasicAuth):
     def check_credentials(self, username, password):
         #werkzeug.security.generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
@@ -21,16 +20,14 @@ class customAuth (BasicAuth):
         app.config['BASIC_AUTH_PASSWORD'] = password
         return True
 
+basic_auth = customAuth(app)
+
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>Welcome to the BLOG</h1>
 <p>Meeting and exceeding all your blogadocious needs.</p>'''
 
-
-
-
 @app.route('/users/create', methods=['POST'])
-@basic_auth.required
 def createUser():
     conn = sqlite3.connect('users.db')
     conn.row_factory = dict_factory
@@ -60,7 +57,6 @@ def createUser():
 
 
 @app.route('/users/delete', methods=['POST'])
-@basic_auth.required
 def deleteUser():
     conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
@@ -91,7 +87,6 @@ def deleteUser():
 
 
 @app.route('/users/changepassword', methods=['POST'])
-@basic_auth.required
 def changeUserPassword():
     jsonRequests = request.get_json()
     newPassword = jsonRequests.get('password')
@@ -127,8 +122,8 @@ def changeUserPassword():
 
 # Add a single new endpoint to the users service that requires HTTP Basic Authentication.
 @app.route('/users/auth', methods=['GET'])
+@basic_auth.required
 def auth():
-    basic_auth = customAuth(app)
     return ""
 
 @app.errorhandler(404)
