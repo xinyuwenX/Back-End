@@ -1,7 +1,25 @@
-# This is the configuration file of Nginx
 # https://www.nginx.com/resources/wiki/start/
 # https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/
 # https://wiki.debian.org/Nginx/DirectoryStructure
+
+
+upstream upstream_articles  {
+  server localhost:5100;
+  server localhost:5101;
+  server localhost:5102;
+}
+
+upstream upstream_comments  {
+  server localhost:5200;
+  server localhost:5201;
+  server localhost:5202;
+}
+
+upstream upstream_tags  {
+  server localhost:5300;
+  server localhost:5301;
+  server localhost:5302;
+}
 
 
 server {
@@ -9,43 +27,41 @@ server {
     server_name _;
     root /var/www/html;
     index index.html index.htm index.nginx-debian.html;
-
     listen 80 default_server;
-    listen [::]:80 default_server;
+
+    rewrite_log on;
 
     location / {
+
         auth_request /auth;
-        auth_request_set $auth_status $upstream_status;
+        #auth_request_set $auth_status $upstream_status;
+        
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying a 404.
-        try_files $uri $uri/ =404;
+        error_page 401 =401 /auth;
+
+        try_files $uri $uri/ /?$query_string;
+
+        location /articles {
+            proxy_pass http://upstream_articles;
+        }
+
+        location /comments {
+            proxy_pass http://upstream_comments;
+        }
+
+        location /tags {
+            proxy_pass http://upstream_tags;
+        }
+
     }
 
-    location /articles/ {
-        auth_request /auth;
-        auth_request_set $auth_status $upstream_status;
-        proxy_pass http://localhost:5000/test;
-    }
-
-    location /tags/ {
-        auth_request /auth;
-        auth_request_set $auth_status $upstream_status;
-        proxy_pass http://localhost:5000/test;
-    }
-
-    location /comments/ {
-        auth_request /auth;
-        auth_request_set $auth_status $upstream_status;
-        proxy_pass http://localhost:5000/test;
-    }
 
     location = /auth {
-        internal;
         proxy_pass http://localhost:5000/users;
+        proxy_pass_header  Authorization;
+        proxy_set_header Authorization $http_authorization;
         proxy_pass_request_body off;
-        proxy_set_header        Content-Length "";
-        proxy_set_header        X-Original-URI $request_uri;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
     }
-}
-
-

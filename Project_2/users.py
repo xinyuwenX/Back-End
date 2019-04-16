@@ -1,5 +1,5 @@
 #Dev 1​ owns the Articles and Users microservices and HTTP Basic Authentication.
-
+from functools import wraps
 import flask
 from flask import request, Response, jsonify
 from flask_basicauth import BasicAuth
@@ -7,14 +7,13 @@ import sqlite3
 import logging
 
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
 class customAuth (BasicAuth):
     def check_credentials(self, username, password):
         #werkzeug.security.generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-
         # get password from DB and determine if this person is truly the account owner
         app.config['BASIC_AUTH_USERNAME'] = username
         app.config['BASIC_AUTH_PASSWORD'] = password
@@ -22,13 +21,15 @@ class customAuth (BasicAuth):
 
 basic_auth = customAuth(app)
 
-@app.route('/', methods=['GET'])
+@app.route('/users', methods=['GET'])
+@basic_auth.required
 def home():
-    return '''<h1>Welcome to the BLOG</h1>
-<p>Meeting and exceeding all your blogadocious needs.</p>'''
+    return '''<h1>Welcome to Project 2 in users</h1>'''
 
 @app.route('/users/create', methods=['POST'])
+@basic_auth.required
 def createUser():
+
     conn = sqlite3.connect('users.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
@@ -51,12 +52,14 @@ def createUser():
         to_filter2 = [app.config['BASIC_AUTH_USERNAME'], email, app.config['BASIC_AUTH_PASSWORD']]
         response = cur.execute(query2, to_filter2).fetchone()
         conn.commit()
-        return '201'
+        return Response('User created successfully.', 200, {})
     else:
-        return '401'
+        error_401()
 
+    
 
 @app.route('/users/delete', methods=['POST'])
+@basic_auth.required
 def deleteUser():
     conn = sqlite3.connect('blog.db')
     conn.row_factory = dict_factory
@@ -83,11 +86,13 @@ def deleteUser():
         conn.commit()
         return '201'
     else:
-        return "401"
+        error_401()
 
 
 @app.route('/users/changepassword', methods=['POST'])
+@basic_auth.required
 def changeUserPassword():
+
     jsonRequests = request.get_json()
     newPassword = jsonRequests.get('password')
 
@@ -116,19 +121,17 @@ def changeUserPassword():
         to_filter2 = [newPassword, app.config['BASIC_AUTH_USERNAME']]
         response = cur.execute(query2, to_filter2).fetchone()
         conn.commit()
-        return 'password successfully changed'
+        return Response('Password successfully changed.', 200, {'WWW-Authenticate':'Basic realm="Login Required"'})
     else:
-        return '401'
-
-# Add a single new endpoint to the users service that requires HTTP Basic Authentication.
-@app.route('/users/auth', methods=['GET'])
-@basic_auth.required
-def auth():
-    return ""
+        error_401()
 
 @app.errorhandler(404)
 def page_not_found(e):
     return "<h1>404</h1><p>The resource could not be found.</p>", 404
+
+@app.errorhandler(401)
+def error_401(error):
+    return Response('Invalid username or password.', 401, {'WWW-Authenticate':'Basic realm="Login Required"'})
 
 
 def dict_factory(cursor, row):

@@ -8,13 +8,33 @@ Author: Xinyu Wen
 Email: xinyuwen@csu.fullerton.edu
 ========================================================================================================================
 '''
-from flask import Flask, request, jsonify, json
+import flask
+from functools import wraps
+from flask import Flask, request, Response, jsonify, json
 import sqlite3
+import logging
+import time
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
 DATABASE = 'tags.db'
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth:
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 # Let the database return items from the database as dictionaries
 def dict_factory(cursor, row):
@@ -23,19 +43,16 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
-# Home page
-@app.route('/', methods=['GET'])
-def home():
-    return '<h1>Project 1</h1>'
-
 # Tags microservice main page
 @app.route('/tags', methods=['GET'])
+@requires_auth
 def tags():
     return '<p>Tags microservice</p>'
 
 
 # Retrieve the tags for an individual URL
 @app.route('/tags/retrieve_tags', methods=['GET'])
+@requires_auth
 def retrieve_tags():
     query_parameters = request.args
     url = query_parameters.get('url')
@@ -60,6 +77,7 @@ def retrieve_tags():
 
 # Retrieve a list of URLs with a given tag
 @app.route('/tags/retrieve_urls', methods=['GET'])
+@requires_auth
 def retrieve_urls():
     query_parameters = request.args
     tag = query_parameters.get('tag')
@@ -84,6 +102,7 @@ def retrieve_urls():
 
 # Remove one or more tags from an individual URL with basic auth
 @app.route('/tags/remove_tags', methods=['DELETE'])
+@requires_auth
 def remove_tags():
     query = "DELETE FROM tags WHERE url = "
 
@@ -104,6 +123,7 @@ def remove_tags():
 
 # Add tags to a new or an existing URL with basic auth
 @app.route('/tags/add_tags', methods=['POST'])
+@requires_auth
 def add_tags():
     query = 'insert into tags(id, tag, url) values '
 

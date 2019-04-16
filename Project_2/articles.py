@@ -1,20 +1,39 @@
 # Dev 1​ owns the Articles and Users microservices and HTTP Basic Authentication.
 
 import flask
-
-from flask import request, Response, jsonify
+from functools import wraps
+from flask import Flask, request, Response, jsonify, json
 import sqlite3
 import logging
 import time
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-@app.route('/', methods=['GET'])
-def home():
-    return '''<h1>Welcome to the BLOG</h1>
-<p>Meeting and exceeding all your blogadocious needs.</p>'''
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth:
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+
+
+@app.route('/articles', methods=['GET'])
+@requires_auth
+def articles():
+    return '''<h1>/articles</h1>'''
 
 
 # Articles microservice
@@ -25,9 +44,10 @@ def home():
 # Post new article
 # Request arguments = author, title, content
 @app.route('/articles/create', methods=['POST'])
+@requires_auth
 def postArticle():
     jsonRequests = request.get_json()
-    author = app.config['BASIC_AUTH_USERNAME']
+    author = app.config['testuser']
     title = jsonRequests.get('title')
     content = jsonRequests.get('content')
     url = jsonRequests.get('url')
@@ -36,8 +56,6 @@ def postArticle():
     timestamp_modified = currentTime
     timestamp_create = currentTime
 
-    # query = '''INSERT INTO articles (id, published, author, title, content, last_modified, url) \
-    #         VALUES (?,?,?,?,?,?,?);'''
     query = '''INSERT INTO articles (url, content, title, author, timestamp_create, timestamp_modified) \
             VALUES (?,?,?,?,?,?,?);'''
     to_filter = []
@@ -67,7 +85,8 @@ def postArticle():
 
 
 # Retrieve an individual article
-@app.route('/articles/', methods=['GET'])
+@app.route('/articles/get', methods=['GET'])
+@requires_auth
 def retrieveArticle():
     jsonRequests = request.get_json()
     url = jsonRequests.get('url')
@@ -85,6 +104,7 @@ def retrieveArticle():
 
 # Edit an individual article. The last-modified timestamp should be updated.
 @app.route('/articles/edit', methods=['POST'])
+@requires_auth
 def editArticle():
     jsonRequests = request.get_json()
     url = jsonRequests.get('url')
@@ -101,7 +121,7 @@ def editArticle():
     author_check = cur.execute(query1, to_filter1).fetchone()
     article_author = author_check.get("author")
 
-    if article_author == app.config['BASIC_AUTH_USERNAME']:
+    if article_author == app.config['testuser']:
 
         query2 = '''UPDATE articles SET content =? WHERE url=?;'''
         to_filter2 = [content, id]
@@ -114,6 +134,7 @@ def editArticle():
 
 # Delete a specific existing article
 @app.route('/articles/delete', methods=['DELETE'])
+@requires_auth
 def deleteArticle():
     jsonRequests = request.get_json()
     url = jsonRequests.get('url')
@@ -133,7 +154,7 @@ def deleteArticle():
     else:
         print("no author found")
 
-    if article_author == app.config['BASIC_AUTH_USERNAME']:
+    if article_author == app.config['testuser']:
         # Assuming author is authorized
         query2 = '''DELETE FROM articles WHERE url=? AND author=?;'''
         to_filter2 = [url, article_author]
@@ -151,6 +172,7 @@ def deleteArticle():
 
 # Retrieve the entire contents (including article text) for the ​ n ​ most recent articles
 @app.route('/articles/recent', methods=['GET'])
+@requires_auth
 def recentArticle():
     jsonRequests = request.get_json()
     n = jsonRequests.get('n')
@@ -168,6 +190,7 @@ def recentArticle():
 
 # Retrieve metadata for the ​ n ​ most recent articles, including title, author, date, and URL
 @app.route('/articles/meta', methods=['GET'])
+@requires_auth
 def recentMetaArticle():
     jsonRequests = request.get_json()
     n = jsonRequests.get('n')
@@ -185,7 +208,9 @@ def recentMetaArticle():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return "<h1>404</h1><p>The resource could not be found.</p>", 404
+    return "<h1>404</h1><p>The articles resource could not be found.</p>", 404
+
+
 
 
 def dict_factory(cursor, row):

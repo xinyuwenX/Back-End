@@ -1,0 +1,4 @@
+users: env FLASK_APP=users.py flask run -p $PORT
+articles: env FLASK_APP=articles.py flask run -p $PORT
+comments: env FLASK_APP=comments.py flask run -p $PORT
+tags: env FLASK_APP=tags.py flask run -p $PORT

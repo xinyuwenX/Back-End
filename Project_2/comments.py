@@ -9,13 +9,33 @@ Author: Xinyu Wen
 Email: xinyuwen@csu.fullerton.edu
 ========================================================================================================================
 '''
-from flask import Flask, request, jsonify, json
+import flask
+from functools import wraps
+from flask import Flask, request, Response, jsonify, json
 import sqlite3
+import logging
+import time
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
 DATABASE = 'comments.db'
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth:
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 # Let the database return items from the database as dictionaries
 def dict_factory(cursor, row):
@@ -24,13 +44,9 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
-# Home page
-@app.route('/', methods=['GET'])
-def home():
-    return '<h1>Project 2</h1>'
-
 # Comments microservice main page
 @app.route('/comments', methods=['GET'])
+@requires_auth
 def comments():
     return '<p>Comments microservice</p>'
 
@@ -38,6 +54,7 @@ def comments():
 # Retrieve the n most recent comments on a URL
 # Request url and number
 @app.route('/comments/retrieve_comments', methods=['GET'])
+@requires_auth
 def retrieve_comments():
     query_parameters = request.args
 
@@ -68,6 +85,7 @@ def retrieve_comments():
 # Retrieve the number of comments on a given article
 # Request url
 @app.route('/comments/retrieve_number', methods=['GET'])
+@requires_auth
 def retrieve_number():
     query_parameters = request.args
 
@@ -96,6 +114,7 @@ def retrieve_number():
 # Delete an individual comment with basic auth
 # Request url
 @app.route('/comments/remove_comments', methods=['DELETE'])
+@requires_auth
 def remove_comments():
     query = "DELETE FROM comments WHERE "
 
@@ -117,6 +136,7 @@ def remove_comments():
 # Post a new comment on an article with basic auth
 # Request comment, url, author
 @app.route('/comments/add_comments', methods=['POST'])
+@requires_auth
 def add_comments():
     query = 'INSERT INTO comments(id, comment, url, author, date) VALUES '
 

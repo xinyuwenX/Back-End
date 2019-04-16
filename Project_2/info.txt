@@ -1,0 +1,8 @@
+sudo service nginx start
+sudo service nginx restart
+py.test -x
+py.test test_articles.tavern.yaml -x
+
+foreman start -m users=1,articles=3,comments=3,tags=3
+
+py.test test_users.tavern.yaml --tavern-beta-new-traceback

@@ -1,0 +1,98 @@
+test_name: access /users home page
+
+stages:
+  - name: Make sure landing page can be reached.
+    request:
+      url: http://localhost/users/
+      auth:
+        - im.a.fake.username
+        - password
+      method: GET
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+
+---
+test_name: Attempt to change password for nonexistent user.
+
+stages:
+  - name: Make sure passwords can not be changed if a user does not exist. The user wont pass authentication.
+    request:
+      url: http://localhost/users/changepassword
+      auth:
+        - im.a.fake.username
+        - password
+      json:
+        password: newpassword
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 401
+
+---
+
+# test_name: Test user lifecycle
+
+# stages:
+#   - name: Make sure users can be created
+#     request:
+#       url: http://localhost/users/create
+#       auth:
+#         - testuser
+#         - testuser
+#       json:
+#         username: bobby.tables
+#         password: hunter2
+#         full_name: Bobby Tables
+#       method: POST
+#       headers:
+#         content-type: application/json
+#     response:
+#       status_code: 200
+
+---
+#       body:
+#         success: username has been registered
+
+#   - name: Make sure users can change their passwords
+#     request:
+#       url: http://localhost/users/changepassword
+#       auth:
+#         - bobby.tables
+#         - hunter2
+#       json:
+#         password: hunter3
+#       method: POST
+#       headers:
+#         content-type: application/json
+#     response:
+#       status_code: 200
+#       headers:
+#         content-type: application/json
+
+#   - name: Make sure users can delete their accounts
+#     request:
+#       url: http://localhost/users/delete
+#       auth:
+#         - bobby.tables
+#         - hunter3
+#       method: POST
+#     response:
+#       status_code: 200
+
+#   - name: Make sure passwords can't be changed for nonexistent accounts. The user wont pass authentication.
+#     request:
+#       url: http://localhost/users/changepw
+#       auth:
+#         - bobby.tables
+#         - hunter3
+#       json:
+#         new_password: hunter4
+#       method: POST
+#       headers:
+#         content-type: application/json
+#     response:
+#       status_code: 401
+

@@ -1,0 +1,93 @@
+test_name: Test comments lifecycle
+
+stages:
+  - name: Make sure a comment cant be made an orphan (doesn't have a valid parent article)
+    request:
+      url: http://localhost:5003/article/500/comments
+      auth:
+        - testuser
+        - testuser
+      json:
+        text: this is a test comment
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 409
+      headers:
+        content-type: application/json
+      body:
+        status: 409
+        message: "Error: Conflict at http://localhost:5003/article/500/comments Code <class 'sqlite3.IntegrityError'>"
+  - name: Post an anonymous comment
+    request:
+      url: http://localhost:5003/article/1/comments
+      json:
+        text: this is a test comment
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      headers:
+        content-type: application/json
+      body:
+        article_id: /article/1
+        comments:
+          - id: 2
+            author: Anonymous Coward
+            content: this is a test comment
+            posted: !anything
+          - id: 1
+            author: testuser
+            content: that's super cool
+            posted: !anything
+  - name: Make sure an authenticated comment can be posted
+    request:
+      url: http://localhost:5003/article/1/comments
+      auth:
+        - testuser
+        - testuser
+      json:
+        text: this is a test authed comment
+      method: POST
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      headers:
+        content-type: application/json
+      body:
+        article_id: /article/1
+        comments:
+          - id: 3
+            author: testuser
+            content: this is a test authed comment
+            posted: !anything
+          - id: 2
+            author: Anonymous Coward
+            content: this is a test comment
+            posted: !anything
+          - id: 1
+            author: testuser
+            content: that's super cool
+            posted: !anything
+  - name: Make sure comments are retrieved in order
+    request:
+      url: http://localhost:5003/article/1/comments/3
+      method: GET
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      headers:
+        content-type: application/json
+      body:
+        count: 3
+        comments:
+          - author: testuser
+            content: this is a test authed comment
+          - author: Anonymous Coward
+            content: this is a test comment
+          - author: testuser
+            content: that's super cool
