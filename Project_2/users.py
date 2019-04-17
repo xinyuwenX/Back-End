@@ -29,7 +29,6 @@ def home():
 @app.route('/users/create', methods=['POST'])
 @basic_auth.required
 def createUser():
-
     conn = sqlite3.connect('users.db')
     conn.row_factory = dict_factory
     cur = conn.cursor()
@@ -52,11 +51,10 @@ def createUser():
         to_filter2 = [app.config['BASIC_AUTH_USERNAME'], email, app.config['BASIC_AUTH_PASSWORD']]
         response = cur.execute(query2, to_filter2).fetchone()
         conn.commit()
-        return Response('User created successfully.', 200, {})
+        return '201'
     else:
-        error_401()
+        return '401'
 
-    
 
 @app.route('/users/delete', methods=['POST'])
 @basic_auth.required
@@ -86,13 +84,12 @@ def deleteUser():
         conn.commit()
         return '201'
     else:
-        error_401()
+        return "401"
 
 
 @app.route('/users/changepassword', methods=['POST'])
 @basic_auth.required
 def changeUserPassword():
-
     jsonRequests = request.get_json()
     newPassword = jsonRequests.get('password')
 
@@ -121,17 +118,19 @@ def changeUserPassword():
         to_filter2 = [newPassword, app.config['BASIC_AUTH_USERNAME']]
         response = cur.execute(query2, to_filter2).fetchone()
         conn.commit()
-        return Response('Password successfully changed.', 200, {'WWW-Authenticate':'Basic realm="Login Required"'})
+        return 'password successfully changed'
     else:
-        error_401()
+        return '401'
+
+# Add a single new endpoint to the users service that requires HTTP Basic Authentication.
+@app.route('/auth', methods=['GET'])
+@basic_auth.required
+def auth():
+    return ""
 
 @app.errorhandler(404)
 def page_not_found(e):
     return "<h1>404</h1><p>The resource could not be found.</p>", 404
-
-@app.errorhandler(401)
-def error_401(error):
-    return Response('Invalid username or password.', 401, {'WWW-Authenticate':'Basic realm="Login Required"'})
 
 
 def dict_factory(cursor, row):
