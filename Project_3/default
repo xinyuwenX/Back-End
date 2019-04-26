@@ -1,0 +1,79 @@
+# Located at /etc/nginx/sites-available/default
+
+
+upstream upstream_users  {
+  server localhost:5000;
+  server localhost:5001;
+  server localhost:5002;
+}
+
+upstream upstream_articles  {
+  server localhost:5100;
+  server localhost:5101;
+  server localhost:5102;
+}
+
+upstream upstream_comments  {
+  server localhost:5200;
+  server localhost:5201;
+  server localhost:5202;
+}
+
+upstream upstream_tags  {
+  server localhost:5300;
+  server localhost:5301;
+  server localhost:5302;
+}
+
+proxy_cache_path /data/nginx/cache levels=1:1 keys_zone=mycache:10m;
+
+server {
+
+    server_name _;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    listen 80 default_server;
+
+    rewrite_log on;
+ 
+    location / {
+
+        auth_request /auth;
+        
+        location /articles {
+            proxy_pass http://upstream_articles;
+        }
+
+        location /comments {
+            proxy_pass http://upstream_comments;
+        }
+
+        location /tags {
+            proxy_pass http://upstream_tags;
+        }
+
+        
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying a 404.
+        error_page 401 =401 /auth;
+
+        try_files $uri $uri/ /?$query_string;
+
+    }
+
+    location = /auth {
+
+            proxy_cache mycache;
+            proxy_cache_methods GET;
+            proxy_cache_valid any 5m;
+            proxy_cache_key $http_name;
+
+            proxy_pass http://upstream_users;
+
+            proxy_set_header X-Original-URI $request_uri;
+            proxy_set_header Authorization $http_authorization;
+
+            proxy_pass_header  Authorization;
+            proxy_pass_request_body off;
+        }
+}
