@@ -1,4 +1,10 @@
-# Located at /etc/nginx/sites-available/default
+# https://www.nginx.com/resources/wiki/start/
+# https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/
+# https://wiki.debian.org/Nginx/DirectoryStructure
+
+
+
+
 
 
 upstream upstream_users  {
@@ -25,6 +31,11 @@ upstream upstream_tags  {
   server localhost:5302;
 }
 
+upstream upstream_rss  {
+  server localhost:5400;
+}
+
+#proxy_cache_path /data/nginx/cache use_temp_path=on keys_zone=one:10m;
 proxy_cache_path /data/nginx/cache levels=1:1 keys_zone=mycache:10m;
 
 server {
@@ -35,10 +46,17 @@ server {
     listen 80 default_server;
 
     rewrite_log on;
+
+    #proxy_cache_key $scheme$proxy_host$request_uri;
  
     location / {
 
         auth_request /auth;
+
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header Authorization $http_authorization;
+        proxy_pass_header  Authorization;
+        proxy_pass_request_body on;
         
         location /articles {
             proxy_pass http://upstream_articles;
@@ -52,7 +70,6 @@ server {
             proxy_pass http://upstream_tags;
         }
 
-        
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying a 404.
         error_page 401 =401 /auth;
@@ -60,6 +77,13 @@ server {
         try_files $uri $uri/ /?$query_string;
 
     }
+
+    location /rss {
+            proxy_set_header X-Original-URI $request_uri;
+            proxy_pass http://upstream_rss;
+            proxy_pass_header  Authorization;
+            proxy_pass_request_body on;
+        }
 
     location = /auth {
 
