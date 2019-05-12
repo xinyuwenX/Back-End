@@ -17,6 +17,7 @@ import time
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
+
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -25,7 +26,6 @@ def requires_auth(f):
             return authenticate()
         return f(*args, **kwargs)
     return decorated
-
 
 def authenticate():
     """Sends a 401 response that enables basic auth"""
@@ -37,25 +37,32 @@ def authenticate():
 
 # Checks to see if there has been an update to the db since the request header 'If-Modified-Since'.
 def updateExists():
-    jsonRequests = request.get_json()
-    requestLastModified = jsonRequests.get('If-Modified-Since')
+    # jsonRequests = request.get_json()
+    cacheHeader = request.headers['If-Modified-Since']
+    # if jsonRequests:
+    if cacheHeader:
 
-    conn = sqlite3.connect('articles.db')
-    conn.row_factory = dict_factory
-    cur = conn.cursor()
+        # requestLastModified = jsonRequests.get('If-Modified-Since')
+        requestLastModified = float(cacheHeader)
 
-    query1 = '''SELECT MAX(timestamp_modified) FROM articles;'''
+        conn = sqlite3.connect('articles.db')
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
 
-    queryResults = cur.execute(query1).fetchone()
-    dbEntryLastModified = float(queryResults.get("MAX(timestamp_modified)"))
+        query1 = '''SELECT MAX(timestamp_modified) FROM articles;'''
 
-    if requestLastModified:
-        if  dbEntryLastModified > requestLastModified:
-            return True, dbEntryLastModified
+        queryResults = cur.execute(query1).fetchone()
+        dbEntryLastModified = float(queryResults.get("MAX(timestamp_modified)"))
+
+        if requestLastModified:
+            if  dbEntryLastModified > requestLastModified:
+                return True, dbEntryLastModified
+            else:
+                return False, dbEntryLastModified
         else:
-            return False, dbEntryLastModified
+            return True, dbEntryLastModified
     else:
-        return True, dbEntryLastModified
+        return True, 0
 
 
 
@@ -72,6 +79,31 @@ def updateExists():
 def articles():
 
     return 'Welcome to the Articles microservice.'
+
+
+
+# Retrieve the entire contents (including article text) for the ​ n ​ most recent articles
+@app.route('/articles/recent/<article_id>', methods=['GET'])
+@requires_auth
+def recentArticle(article_id):
+    requestNeedsUpdate, timeOfLatestUpdate = updateExists()
+    if requestNeedsUpdate:
+
+        query = '''SELECT * FROM articles ORDER BY timestamp_create DESC LIMIT ?'''
+        to_filter = [article_id]
+
+        conn = sqlite3.connect('articles.db')
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        all_articles = cur.execute(query, to_filter).fetchall()
+
+        return Response(json.dumps(all_articles), status=200, headers={"Last-Modified":timeOfLatestUpdate})
+    else:
+        return Response(status=304, headers={"Last-Modified":timeOfLatestUpdate})
+
+
+
+
 
 
 # Retrieve an individual article
@@ -99,50 +131,29 @@ def retrieveArticle():
 
 
 
-# Retrieve metadata for the ​ n ​ most recent articles, including title, author, date, and URL
-@app.route('/articles/meta', methods=['GET'])
-@requires_auth
-def recentMetaArticle():
-    requestNeedsUpdate, timeOfLatestUpdate = updateExists()
-    if requestNeedsUpdate:
-        jsonRequests = request.get_json()
-        n = jsonRequests.get('n')
+# # Retrieve metadata for the ​ n ​ most recent articles, including title, author, date, and URL
+# @app.route('/articles/meta', methods=['GET'])
+# @requires_auth
+# def recentMetaArticle():
+#     requestNeedsUpdate, timeOfLatestUpdate = updateExists()
+#     return Response(timeOfLatestUpdate)
+#     if requestNeedsUpdate:
+#         jsonRequests = request.get_json()
+#         n = jsonRequests.get('n')
 
-        query = '''SELECT title, author, timestamp_create, url FROM articles ORDER BY timestamp_create DESC LIMIT ?'''
-        to_filter = [n]
+#         query = '''SELECT title, author, timestamp_create, url FROM articles ORDER BY timestamp_create DESC LIMIT ?'''
+#         to_filter = [n]
 
-        conn = sqlite3.connect('articles.db')
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        all_articles = cur.execute(query, to_filter).fetchall()
+#         conn = sqlite3.connect('articles.db')
+#         conn.row_factory = dict_factory
+#         cur = conn.cursor()
+#         all_articles = cur.execute(query, to_filter).fetchall()
 
-        return Response(json.dumps(all_articles), status=200, headers={"Last-Modified":timeOfLatestUpdate})
-    else:
-        return Response(status=304, headers={"Last-Modified":timeOfLatestUpdate})
+#         return Response(json.dumps(all_articles), status=200, headers={"Last-Modified":timeOfLatestUpdate})
+#     else:
+#         return Response(status=304, headers={"Last-Modified":timeOfLatestUpdate})
 
 
-
-# Retrieve the entire contents (including article text) for the ​ n ​ most recent articles
-@app.route('/articles/recent', methods=['GET'])
-@requires_auth
-def recentArticle():
-    requestNeedsUpdate, timeOfLatestUpdate = updateExists()
-    if requestNeedsUpdate:
-
-        jsonRequests = request.get_json()
-        n = jsonRequests.get('n')
-
-        query = '''SELECT * FROM articles ORDER BY timestamp_create DESC LIMIT ?'''
-        to_filter = [n]
-
-        conn = sqlite3.connect('articles.db')
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        all_articles = cur.execute(query, to_filter).fetchall()
-
-        return Response(json.dumps(all_articles), status=200, headers={"Last-Modified":timeOfLatestUpdate})
-    else:
-        return Response(status=304, headers={"Last-Modified":timeOfLatestUpdate})
 
 
 # Put Methods

@@ -47,24 +47,27 @@ def dict_factory(cursor, row):
 # Checks to see if there has been an update to the db since the request header 'If-Modified-Since'.
 def updateExists():
     jsonRequests = request.get_json()
-    requestLastModified = jsonRequests.get('If-Modified-Since')
+    if jsonRequests:
+        requestLastModified = jsonRequests.get('If-Modified-Since')
 
-    conn = sqlite3.connect('comments.db')
-    conn.row_factory = dict_factory
-    cur = conn.cursor()
+        conn = sqlite3.connect('articles.db')
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
 
-    query1 = '''SELECT MAX(date) FROM comments;'''
+        query1 = '''SELECT MAX(timestamp_modified) FROM articles;'''
 
-    queryResults = cur.execute(query1).fetchone()
-    dbEntryLastModified = float(queryResults.get("MAX(date)"))
+        queryResults = cur.execute(query1).fetchone()
+        dbEntryLastModified = float(queryResults.get("MAX(timestamp_modified)"))
 
-    if requestLastModified:
-        if  dbEntryLastModified > requestLastModified:
-            return True, dbEntryLastModified
+        if requestLastModified:
+            if  dbEntryLastModified > requestLastModified:
+                return True, dbEntryLastModified
+            else:
+                return False, dbEntryLastModified
         else:
-            return False, dbEntryLastModified
+            return True, dbEntryLastModified
     else:
-        return True, dbEntryLastModified
+        return True, 0
 
 
 # Comments microservice main page
@@ -75,17 +78,19 @@ def comments():
 
 # Retrieve the n most recent comments on a URL
 # Request url and number
-@app.route('/comments/retrieve_comments', methods=['GET'])
+@app.route('/comments/<article_id>', methods=['GET'])
 @requires_auth
-def retrieve_comments():
+def retrieve_comments(article_id):
+
     requestNeedsUpdate, timeOfLatestUpdate = updateExists()
     if requestNeedsUpdate:
 
         jsonRequests = request.get_json()
 
-        url = jsonRequests.get('url')
-        limit = jsonRequests.get('limit')
-
+        url = article_id
+        # limit = jsonRequests.get('limit')
+        limit = 10
+        
         if url and limit:
             query = f'''SELECT comment FROM comments WHERE url="{url}" order by date desc limit {limit} ;'''
             conn = sqlite3.connect(DATABASE)
@@ -190,11 +195,14 @@ def add_comments():
     conn.commit()
 
     return Response(status=201)
- 
+
+    
 
 # Error handler
 @app.errorhandler(404)
 def page_not_found(e):
     return "<h1>404</h1><p>The resource could not be found.</p>", 404
+
+
 
 app.run()
